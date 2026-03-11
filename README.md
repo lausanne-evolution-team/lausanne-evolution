@@ -2,7 +2,7 @@
 
 | Student's name | SCIPER |
 | -------------- | ------ |
-| Aoutir Zyad| | 339511
+| Aoutir Zyad    | 339511 |
 | | |
 | | |
 
