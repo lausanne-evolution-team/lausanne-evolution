@@ -11,7 +11,7 @@ const Lens2 = (() => {
 
   function drawDualLine(cityHH){
     const el=document.getElementById('chart-dualline');
-    const W=getW('chart-dualline'),H=280,m={t:28,r:64,b:36,l:46};
+    const W=getW('chart-dualline'),H=340,m={t:28,r:64,b:36,l:46};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${W} ${H}`);
@@ -62,7 +62,7 @@ const Lens2 = (() => {
 
   function drawEmployment(cityEmp){
     const el=document.getElementById('chart-employment');
-    const W=getW('chart-employment'),H=280,m={t:28,r:20,b:36,l:52};
+    const W=getW('chart-employment'),H=340,m={t:28,r:20,b:36,l:52};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${W} ${H}`);

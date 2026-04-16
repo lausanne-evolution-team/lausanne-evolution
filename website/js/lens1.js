@@ -10,7 +10,7 @@ const Lens1 = (() => {
 
   function drawStackedArea(cityPop) {
     const el = document.getElementById('chart-stacked');
-    const W = getW('chart-stacked'), H = 260;
+    const W = getW('chart-stacked'), H = 340;
     const m = {t:24,r:20,b:36,l:44};
     const w = W-m.l-m.r, h = H-m.t-m.b;
     el.innerHTML = '';

@@ -11,7 +11,7 @@ const Lens3 = (() => {
 
   function drawGapArea(gapData){
     const el=document.getElementById('chart-gap');
-    const W=getW('chart-gap'),H=300,m={t:36,r:148,b:40,l:52};
+    const W=getW('chart-gap'),H=400,m={t:36,r:148,b:40,l:52};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${W} ${H}`);
@@ -69,7 +69,7 @@ const Lens3 = (() => {
 
   function drawGroupedBar(cityRooms,cityHH){
     const el=document.getElementById('chart-groupedbar');
-    const W=getW('chart-groupedbar'),H=280,m={t:28,r:20,b:52,l:46};
+    const W=getW('chart-groupedbar'),H=340,m={t:28,r:20,b:52,l:46};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     const yr=d3.min([d3.max(cityRooms,d=>d.year),d3.max(cityHH,d=>d.year)]);
@@ -116,7 +116,7 @@ const Lens3 = (() => {
 
   function drawSurface(citySurf){
     const el=document.getElementById('chart-surface');
-    const W=getW('chart-surface'),H=280,m={t:28,r:20,b:36,l:46};
+    const W=getW('chart-surface'),H=340,m={t:28,r:20,b:36,l:46};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     if(!citySurf.length) return;
