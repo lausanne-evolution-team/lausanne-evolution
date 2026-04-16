@@ -43,8 +43,9 @@ Please, fill the following sections about your project.
 > - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
 
 ## Milestone 2 (17th April, 5pm)
-
 **10% of the final grade**
+
+📄 [Milestone 2 PDF](milestone2.pdf) &nbsp;·&nbsp;🌐 [Live Website](https://lausanne-evolution-team.github.io/lausanne-evolution/website/)
 
 
 ## Milestone 3 (29th May, 5pm)
