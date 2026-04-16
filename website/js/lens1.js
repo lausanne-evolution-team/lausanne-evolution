@@ -135,11 +135,12 @@ const Lens1 = (() => {
        pct:    g.total / d.pop_total,
      }));
 
+    const LABEL_W = 42;   /* fixed center column width for age labels */
     const svg = d3.select(container).append('svg').attr('viewBox', `0 0 ${W} ${H}`);
     const cx = W / 2;
-    const rowH = (H - 20) / groups.length;
+    const rowH = (H - 22) / groups.length;
     const maxPct = d3.max(groups, g => g.total / d.pop_total);
-    const barScale = ((W / 2) - 50) / maxPct;
+    const barScale = ((W / 2) - LABEL_W / 2 - 12) / maxPct;
 
     groups.forEach((g, i) => {
       const y0 = 10 + i * rowH;
@@ -147,28 +148,28 @@ const Lens1 = (() => {
       const bwM = (g.male   / d.pop_total) * barScale;
       const bwF = (g.female / d.pop_total) * barScale;
 
-      /* male bar (left) */
+      /* male bar — ends at cx - LABEL_W/2 - 2 */
       svg.append('rect')
-        .attr('x', cx - bwM - 2).attr('y', y0)
+        .attr('x', cx - LABEL_W / 2 - 2 - bwM).attr('y', y0)
         .attr('width', bwM).attr('height', bh)
         .attr('fill', '#2563EB').attr('rx', 2).attr('opacity', 0.85);
 
-      /* female bar (right) */
+      /* female bar — starts at cx + LABEL_W/2 + 2 */
       svg.append('rect')
-        .attr('x', cx + 2).attr('y', y0)
+        .attr('x', cx + LABEL_W / 2 + 2).attr('y', y0)
         .attr('width', bwF).attr('height', bh)
         .attr('fill', '#93c5fd').attr('rx', 2).attr('opacity', 0.85);
 
-      /* age label */
+      /* age label — sits in the clear center column */
       svg.append('text')
         .attr('x', cx).attr('y', y0 + bh / 2 + 4)
         .attr('text-anchor', 'middle')
         .attr('font-family', 'DM Sans, sans-serif').attr('font-size', 10)
-        .attr('fill', '#64748b').text(g.label);
+        .attr('fill', '#334155').text(g.label);
     });
 
     /* axis labels */
-    [['Male', cx - 55], ['Female', cx + 55]].forEach(([label, x]) => {
+    [['Male', cx - 60], ['Female', cx + 60]].forEach(([label, x]) => {
       svg.append('text').attr('x', x).attr('y', H - 2)
         .attr('text-anchor', 'middle')
         .attr('font-family', 'DM Sans, sans-serif').attr('font-size', 10)

@@ -51,6 +51,7 @@ Promise.all([
   const districts = popOrigin
     .filter(d => d.year === latestPopYear && d.district !== CITY)
     .filter(d => /^\d{1,2}\s*[-–]/.test(d.district))   /* top-level quartiers only */
+    .filter(d => !d.district.startsWith('99'))           /* remove Adresses inconnues */
     .sort((a, b) => d3.ascending(a.district, b.district));
 
   /* gap data: join households + rooms by year */
