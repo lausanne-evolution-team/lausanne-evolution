@@ -29,7 +29,7 @@ const Lens3 = (() => {
       .transition().delay(700).duration(900).attr('opacity',.15);
     // demand line (solid)
     const demL=d3.line().x(d=>x(d.year)).y(d=>y(d.pct_1person)).curve(d3.curveCatmullRom);
-    const p1=g.append('path').datum(gapData).attr('fill','none').attr('stroke','#b91c1c').attr('stroke-width',2.8).attr('d',demL);
+    const p1=g.append('path').datum(gapData).attr('fill','none').attr('stroke','#b91c1c').attr('stroke-width',3.5).attr('d',demL);
     drawLine(p1.node(),1400,0);
     // supply line (dashed)
     const supL=d3.line().x(d=>x(d.year)).y(d=>y(d.pct_small_dw)).curve(d3.curveCatmullRom);
@@ -37,12 +37,32 @@ const Lens3 = (() => {
     drawLine(p2.node(),1400,300);
     // dots
     g.selectAll('.dd').data(gapData).join('circle').attr('class','dd').attr('cx',d=>x(d.year)).attr('cy',d=>y(d.pct_1person)).attr('r',3.5).attr('fill','white').attr('stroke','#b91c1c').attr('stroke-width',2);
-    // gap annotation
+    // gap annotation — bracket in the middle
     const mid=gapData[Math.floor(gapData.length*.62)];
     if(mid){
       const mx=x(mid.year),y1a=y(mid.pct_1person),y2a=y(mid.pct_small_dw);
       g.append('line').attr('x1',mx+8).attr('x2',mx+8).attr('y1',y1a).attr('y2',y2a).attr('stroke','#c2410c').attr('stroke-width',1.5);
-      g.append('text').attr('x',mx+12).attr('y',(y1a+y2a)/2+4).attr('font-size',10).attr('font-weight','700').attr('fill','#c2410c').text(`+${Math.round(mid.gap*100)}pp gap`);
+      g.append('text').attr('x',mx+12).attr('y',(y1a+y2a)/2+4).attr('font-size',11).attr('font-weight','700').attr('fill','#c2410c').text(`+${Math.round(mid.gap*100)}pp gap`);
+    }
+    // annotation: mark year 2020 where gap noticeably jumps
+    const d2020 = gapData.find(d=>d.year===2020);
+    if(d2020){
+      const ax=x(2020), ay=y(d2020.pct_1person)-14;
+      // vertical dashed line
+      g.append('line').attr('x1',ax).attr('x2',ax).attr('y1',y(d2020.pct_1person)).attr('y2',ay-4)
+        .attr('stroke','#c2410c').attr('stroke-width',1).attr('stroke-dasharray','3,2').attr('opacity',.7);
+      // circle highlight on demand line
+      g.append('circle').attr('cx',ax).attr('cy',y(d2020.pct_1person)).attr('r',5)
+        .attr('fill','#c2410c').attr('opacity',.25);
+      g.append('circle').attr('cx',ax).attr('cy',y(d2020.pct_1person)).attr('r',3)
+        .attr('fill','none').attr('stroke','#c2410c').attr('stroke-width',1.5);
+      // label
+      const labelBox = g.append('g').attr('transform',`translate(${ax},${ay-28})`);
+      labelBox.append('rect').attr('x',-54).attr('y',0).attr('width',108).attr('height',22).attr('rx',4)
+        .attr('fill','#c2410c').attr('opacity',.9);
+      labelBox.append('text').attr('x',0).attr('y',14).attr('text-anchor','middle')
+        .attr('font-size',10).attr('font-weight','700').attr('fill','white')
+        .text('gap starts widening →');
     }
     // end labels
     const last=gapData[gapData.length-1];
