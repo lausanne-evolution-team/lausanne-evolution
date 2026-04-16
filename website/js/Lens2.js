@@ -76,17 +76,19 @@ const Lens2 = (() => {
     /* 1-person line (solid green) */
     const line1 = d3.line()
       .x(d => x(d.year)).y(d => yL(d.pct_1person)).curve(d3.curveCatmullRom);
-    g.append('path').datum(data)
+    const path1 = g.append('path').datum(data)
       .attr('fill', 'none').attr('stroke', '#059669')
       .attr('stroke-width', 2.5).attr('d', line1);
+    if (window.Anim) Anim.drawLine(path1.node(), 1200);
 
     /* mean size line (dashed, lighter) */
     const line2 = d3.line()
       .x(d => x(d.year)).y(d => yR(+d.hh_mean_size)).curve(d3.curveCatmullRom);
-    g.append('path').datum(data)
+    const path2 = g.append('path').datum(data)
       .attr('fill', 'none').attr('stroke', '#059669')
       .attr('stroke-width', 1.5).attr('stroke-dasharray', '5,3')
       .attr('opacity', 0.55).attr('d', line2);
+    if (window.Anim) Anim.drawLine(path2.node(), 1200, 200);
 
     /* dots */
     g.selectAll('.dot1').data(data).join('circle')

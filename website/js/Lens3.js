@@ -48,22 +48,27 @@ const Lens3 = (() => {
       .y1(d => y(d.pct_1person))
       .curve(d3.curveCatmullRom);
     g.append('path').datum(gapData)
-      .attr('fill', '#dc2626').attr('opacity', 0.15).attr('d', gapAreaFn);
+      .attr('fill', '#dc2626').attr('opacity', 0)
+      .attr('d', gapAreaFn)
+      .transition().delay(600).duration(900)
+      .attr('opacity', 0.15);
 
     /* demand line (1-person HH%) — solid red */
     const demandLine = d3.line()
       .x(d => x(d.year)).y(d => y(d.pct_1person)).curve(d3.curveCatmullRom);
-    g.append('path').datum(gapData)
+    const demPath = g.append('path').datum(gapData)
       .attr('fill', 'none').attr('stroke', '#dc2626')
       .attr('stroke-width', 2.8).attr('d', demandLine);
+    if (window.Anim) Anim.drawLine(demPath.node(), 1400);
 
     /* supply line (small dw%) — dashed red */
     const supplyLine = d3.line()
       .x(d => x(d.year)).y(d => y(d.pct_small_dw)).curve(d3.curveCatmullRom);
-    g.append('path').datum(gapData)
+    const supPath = g.append('path').datum(gapData)
       .attr('fill', 'none').attr('stroke', '#dc2626')
       .attr('stroke-width', 2).attr('stroke-dasharray', '6,3')
       .attr('opacity', 0.7).attr('d', supplyLine);
+    if (window.Anim) Anim.drawLine(supPath.node(), 1400, 300);
 
     /* dots on demand line */
     g.selectAll('.dot-demand').data(gapData).join('circle')

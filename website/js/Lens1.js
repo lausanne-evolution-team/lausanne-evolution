@@ -67,8 +67,10 @@ const Lens1 = (() => {
       .data(series).join('path')
       .attr('class', 'area-path')
       .attr('fill', d => colors[d.key])
-      .attr('opacity', 0.88)
-      .attr('d', area);
+      .attr('opacity', 0)
+      .attr('d', area)
+      .transition().delay((_, i) => i * 200).duration(900).ease(d3.easeQuadOut)
+      .attr('opacity', 0.88);
 
     /* legend */
     const leg = svg.append('g').attr('transform', `translate(${m.l + 8},${m.t + 4})`);

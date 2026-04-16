@@ -79,17 +79,18 @@ Promise.all([
 
   const fmt = d3.format('.0%');
   const statItems = [
-    { num: fmt(latest.pct_foreign),       label: 'of residents are foreign-born (' + latest.year + ')' },
-    { num: fmt(latestHH.pct_1person),     label: 'of households are 1-person (' + latestHH.year + ')' },
-    { num: latestHH.hh_mean_size.toFixed(2), label: 'average household size (persons)' },
-    { num: '+' + fmt(gap2024.gap),        label: 'gap: 1-person HH% minus small apt% (' + gap2024.year + ')' },
+    { num: fmt(latest.pct_foreign),          raw: Math.round(latest.pct_foreign*100),    suffix: '%',  label: 'of residents are foreign-born (' + latest.year + ')' },
+    { num: fmt(latestHH.pct_1person),        raw: Math.round(latestHH.pct_1person*100),  suffix: '%',  label: 'of households are 1-person (' + latestHH.year + ')' },
+    { num: latestHH.hh_mean_size.toFixed(2), raw: latestHH.hh_mean_size,                suffix: '',   label: 'average household size (persons)' },
+    { num: '+' + fmt(gap2024.gap),           raw: Math.round(gap2024.gap*100),           suffix: '%',  label: 'gap: single HH demand vs small apt supply (' + gap2024.year + ')' },
   ];
 
   document.getElementById('hero-stats').innerHTML = statItems
     .map(s => `<div class="stat">
-      <div class="stat-num">${s.num}</div>
+      <div class="stat-num" data-target="${s.raw}" data-suffix="${s.suffix}">${s.num}</div>
       <div class="stat-label">${s.label}</div>
     </div>`).join('');
+  setTimeout(() => window.startHeroCounters && window.startHeroCounters(), 300);
 
   /* ── init all lenses ─────────────────────────────────────────── */
   Lens1.init(data);
