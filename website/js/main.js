@@ -2,7 +2,7 @@
    main.js — Load all data, populate hero, init all lenses
    ============================================================ */
 
-const DATA_PATH = '../data/processed/';
+const DATA_PATH = 'data/';
 
 /* shared tooltip helper */
 const tooltip = {
