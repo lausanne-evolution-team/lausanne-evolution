@@ -45,7 +45,7 @@ Please, fill the following sections about your project.
 ## Milestone 2 (17th April, 5pm)
 **10% of the final grade**
 
-📄 [Milestone 2 PDF](Milestone-2.pdf) 
+📄 [Milestone 2 PDF](Milestone-2.pdf) &nbsp;·&nbsp;
 🌐 [Live Website](https://lausanne-evolution-team.github.io/lausanne-evolution/website/)
 
 
