@@ -11,7 +11,7 @@ const Lens3 = (() => {
 
   function drawGapArea(gapData){
     const el=document.getElementById('chart-gap');
-    const W=getW('chart-gap'),H=400,m={t:36,r:148,b:40,l:52};
+    const W=getW('chart-gap'),H=440,m={t:36,r:148,b:40,l:52};
     const w=W-m.l-m.r,h=H-m.t-m.b;
     el.innerHTML='';
     const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${W} ${H}`);

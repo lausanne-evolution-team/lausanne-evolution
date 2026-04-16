@@ -405,3 +405,18 @@ footer a:hover { color: #94a3b8; }
   margin-top: 3px; font-weight: 600;
   text-transform: uppercase; letter-spacing: .06em;
 }
+
+/* ── MICRO INSIGHT (below choropleth) ───────────────────── */
+.chart-micro-insight {
+  margin-top: 18px; padding: 14px 18px;
+  background: var(--l1-soft);
+  border-left: 3px solid var(--l1);
+  border-radius: 0 8px 8px 0;
+  font-size: 14px; color: var(--slate);
+  line-height: 1.6;
+}
+
+/* ── CORE CARD extra padding ─────────────────────────────── */
+.chart-card.core {
+  padding: 44px 48px !important;
+}

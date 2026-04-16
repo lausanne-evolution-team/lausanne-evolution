@@ -82,7 +82,7 @@ Promise.all([
     { num: fmt(latest.pct_foreign),          raw: Math.round(latest.pct_foreign*100),    suffix: '%',  label: 'of residents are foreign-born — up from 23% in 1979' },
     { num: fmt(latestHH.pct_1person),        raw: Math.round(latestHH.pct_1person*100),  suffix: '%',  label: 'of households are just 1 person — the city lives alone' },
     { num: latestHH.hh_mean_size.toFixed(2), raw: latestHH.hh_mean_size,                suffix: '',   label: 'average persons per household — and still falling' },
-    { num: '+' + fmt(gap2024.gap),           raw: Math.round(gap2024.gap*100),           suffix: '%',  label: 'mismatch between housing demand and supply — and widening' },
+    { num: '+' + fmt(gap2024.gap),           raw: Math.round(gap2024.gap*100),           suffix: '%',  label: 'mismatch between demand for small homes and available supply' },
   ];
 
   document.getElementById('hero-stats').innerHTML = statItems
