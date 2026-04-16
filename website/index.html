@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lausanne — Housing & Demographics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ── TOOLTIP (shared) ─────────────────────────────────────────── -->
+  <div id="tooltip"></div>
+
+  <!-- ── NAV ─────────────────────────────────────────────────────── -->
+  <nav>
+    <span class="brand">Lausanne <em>en mutation</em></span>
+    <div class="nav-links">
+      <a href="#lens1" class="l1">Who lives here</a>
+      <a href="#lens2" class="l2">How people live</a>
+      <a href="#lens3" class="l3">What housing offers</a>
+    </div>
+  </nav>
+
+  <!-- ── HERO ─────────────────────────────────────────────────────── -->
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">COM-480 · Data Visualization · EPFL 2025</p>
+      <h1>Is Lausanne's housing stock evolving to match its <em>changing social fabric?</em></h1>
+      <p class="hero-sub">Nearly half of Lausanne's residents are foreign-born. Single-person households now represent 49% of all homes. Yet the city's housing stock has barely changed its shape in 15 years.</p>
+      <div class="hero-stats" id="hero-stats">
+        <!-- filled by JS -->
+      </div>
+    </div>
+  </header>
+
+  <!-- ── LENS 1 ────────────────────────────────────────────────────── -->
+  <section class="lens-section" id="lens1">
+    <div class="lens-label l1">Lens 1</div>
+    <h2>Who lives in Lausanne?</h2>
+    <p class="lens-desc">Lausanne's population has grown and transformed since 1979 — absorbing waves of international residents, shifting younger, and spreading unevenly across its 18 districts. This lens traces that demographic transformation.</p>
+
+    <div class="chart-grid two-col">
+      <div class="chart-card" id="card-stacked">
+        <div class="card-header">
+          <h3>Swiss vs foreign population</h3>
+          <span class="card-sub">Share of total population · 1979–2025</span>
+          <span class="badge mvp">MVP</span>
+        </div>
+        <div class="chart-wrap" id="chart-stacked"></div>
+      </div>
+
+      <div class="chart-card" id="card-pyramid">
+        <div class="card-header">
+          <h3>Population pyramid</h3>
+          <span class="card-sub">Age groups by sex</span>
+          <span class="badge extra">Extra</span>
+        </div>
+        <div class="year-slider-row">
+          <span>1979</span>
+          <input type="range" id="pyramid-slider" min="1979" max="2024" value="2024" step="1">
+          <span>2024</span>
+          <strong id="pyramid-year-label">2024</strong>
+        </div>
+        <div class="chart-wrap" id="chart-pyramid"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid one-col" style="margin-top:20px;">
+      <div class="chart-card" id="card-choropleth">
+        <div class="card-header">
+          <h3>Foreign resident share by district</h3>
+          <span class="card-sub">Latest available year · colour = % foreign-born</span>
+          <span class="badge mvp">MVP</span>
+        </div>
+        <div class="chart-wrap" id="chart-choropleth"></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="lens-rule">
+
+  <!-- ── LENS 2 ────────────────────────────────────────────────────── -->
+  <section class="lens-section" id="lens2">
+    <div class="lens-label l2">Lens 2</div>
+    <h2>How do people live and work?</h2>
+    <p class="lens-desc">Single-person households have surged. Average household size is shrinking. And women hold a majority of jobs in Lausanne — yet a persistent part-time gap keeps their full-time equivalent share lower. This lens characterises the demand that the housing stock must serve.</p>
+
+    <div class="chart-grid two-col">
+      <div class="chart-card" id="card-dualline">
+        <div class="card-header">
+          <h3>Rise of single-person households</h3>
+          <span class="card-sub">1-person HH share vs mean HH size · 2012–2025</span>
+          <span class="badge mvp">MVP</span>
+        </div>
+        <div class="chart-wrap" id="chart-dualline"></div>
+      </div>
+
+      <div class="chart-card" id="card-employment">
+        <div class="card-header">
+          <h3>Female employment gap</h3>
+          <span class="card-sub">Headcount % vs full-time equivalent % · gap = part-time differential · 2011–2023</span>
+          <span class="badge mvp">MVP</span>
+        </div>
+        <div class="chart-wrap" id="chart-employment"></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="lens-rule">
+
+  <!-- ── LENS 3 ────────────────────────────────────────────────────── -->
+  <section class="lens-section" id="lens3">
+    <div class="lens-label l3">Lens 3</div>
+    <h2>What does housing offer?</h2>
+    <p class="lens-desc">Lausanne's housing stock has grown 12% since 2010 — but its room-size distribution has barely shifted. This lens compares supply to demand: are small apartments multiplying fast enough to serve a city that is overwhelmingly made up of singles and couples?</p>
+
+    <!-- CORE chart: full width -->
+    <div class="chart-grid one-col">
+      <div class="chart-card core" id="card-gap">
+        <div class="card-header">
+          <h3>★ The gap: small-household demand vs small-dwelling supply</h3>
+          <span class="card-sub">1-person HH share (%) vs 1–2 room dwelling share (%) · 2012–2024 · red fill = unmet demand</span>
+          <span class="badge core-badge">★ Core</span>
+        </div>
+        <div class="chart-wrap" id="chart-gap"></div>
+      </div>
+    </div>
+
+    <div class="chart-grid two-col" style="margin-top:20px;">
+      <div class="chart-card" id="card-groupedbar">
+        <div class="card-header">
+          <h3>Supply vs demand by room count</h3>
+          <span class="card-sub">Room distribution of dwellings vs household-size distribution · 2024</span>
+          <span class="badge mvp">MVP</span>
+        </div>
+        <div class="chart-wrap" id="chart-groupedbar"></div>
+      </div>
+
+      <div class="chart-card" id="card-surface">
+        <div class="card-header">
+          <h3>Dwelling size distribution</h3>
+          <span class="card-sub">Share of stock by floor surface area · 2010–2024</span>
+          <span class="badge extra">Extra</span>
+        </div>
+        <div class="chart-wrap" id="chart-surface"></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Data: <a href="https://www.lausanne.ch/officiel/statistique/quartiers/tableaux-donnees.html" target="_blank">Statistique Lausanne</a> · Farah Kacem · Zyad Aoutir · Anass Inani · COM-480 Data Visualization · EPFL 2025</p>
+  </footer>
+
+  <!-- ── SCRIPTS ───────────────────────────────────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="js/lens1.js"></script>
+  <script src="js/lens2.js"></script>
+  <script src="js/lens3.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
