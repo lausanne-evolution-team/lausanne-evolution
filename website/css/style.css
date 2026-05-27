@@ -513,3 +513,130 @@ footer a:hover { color: #94a3b8; }
   line-height: 1.72;
   margin: 0;
 }
+
+
+/* ── SCROLLYTELLING ────────────────────────────────────────────────── */
+.scrolly-section {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 80px 52px;
+}
+
+.scrolly-intro {
+  margin-bottom: 48px;
+}
+
+.scrolly-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: start;
+  position: relative;
+}
+
+@media (max-width: 860px) {
+  .scrolly-container { grid-template-columns: 1fr; }
+  .scrolly-sticky    { position: relative; top: 0; }
+}
+
+/* Sticky chart column */
+.scrolly-sticky {
+  position: sticky;
+  top: 80px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 24px;
+  border: 1.5px solid rgba(194,65,12,.18);
+  background: var(--core-soft);
+}
+
+/* Steps column */
+.scrolly-steps {
+  padding-top: 20vh;
+  padding-bottom: 40vh;
+}
+
+/* Individual step */
+.scrolly-step {
+  min-height: 40vh;
+  display: flex;
+  align-items: center;
+  padding: 32px 0;
+  opacity: 0.3;
+  transform: translateX(12px);
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.scrolly-step.is-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.step-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 24px 28px;
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--l3);
+  max-width: 400px;
+}
+
+.step-number {
+  font-family: var(--ff-body);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--l3);
+  margin-bottom: 8px;
+}
+
+.step-card h4 {
+  font-family: var(--ff-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--dark);
+  margin-bottom: 10px;
+  line-height: 1.25;
+}
+
+.step-card p {
+  font-size: 14.5px;
+  color: var(--muted);
+  line-height: 1.72;
+  margin: 0;
+}
+
+/* ── DISTRICT FILTER ───────────────────────────────────────────────── */
+.district-reset {
+  display: none;
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #92400e;
+  cursor: pointer;
+  transition: background .2s;
+  width: fit-content;
+}
+.district-reset:hover { background: #fde68a; }
+
+/* District filter active banner */
+.filter-banner {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #78350f;
+  margin-bottom: 20px;
+}
+.filter-banner.visible { display: flex; }
+.filter-banner strong { color: #92400e; }

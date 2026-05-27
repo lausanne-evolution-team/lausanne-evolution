@@ -22,6 +22,18 @@ const tooltip = {
 };
 window.TT = tooltip;
 
+/* ── Global district filter state ───────────────────────────── */
+window.DistrictFilter = {
+  active: null,   // currently selected district name, or null = city level
+  listeners: [],  // callbacks registered by lens files
+  set(districtName) {
+    this.active = districtName;
+    this.listeners.forEach(fn => fn(districtName));
+  },
+  clear() { this.set(null); },
+  onChange(fn) { this.listeners.push(fn); },
+};
+
 Promise.all([
   d3.csv(DATA_PATH + 'pop_origin.csv',        d3.autoType),
   d3.csv(DATA_PATH + 'pop_age.csv',           d3.autoType),
@@ -32,9 +44,9 @@ Promise.all([
   d3.json(DATA_PATH + 'lausanne_districts.geojson').catch(() => null),
 ]).then(([popOrigin, popAge, households, employment, dwRooms, dwSurface, geoData]) => {
 
-  const CITY    = 'Ville de Lausanne';
-  const byCity  = d => d.district === CITY;
-  const byYear  = (a, b) => a.year - b.year;
+  const CITY   = 'Ville de Lausanne';
+  const byCity = d => d.district === CITY;
+  const byYear = (a, b) => a.year - b.year;
 
   const cityPop   = popOrigin.filter(byCity).sort(byYear);
   const cityAge   = popAge.filter(byCity).sort(byYear);
@@ -42,6 +54,11 @@ Promise.all([
   const cityEmp   = employment.filter(byCity).sort(byYear);
   const cityRooms = dwRooms.filter(byCity).sort(byYear);
   const citySurf  = dwSurface.filter(byCity).sort(byYear);
+
+  /* All district-level data (for filtering) */
+  const allPop      = popOrigin;
+  const allHH       = households;
+  const allRooms    = dwRooms;
 
   const latestPopYear = d3.max(popOrigin, d => d.year);
   const districts = popOrigin
@@ -60,9 +77,13 @@ Promise.all([
       gap: +(d.pct_1person - roomsByYear[d.year].pct_small_dw).toFixed(4),
     }));
 
-  const data = { cityPop, cityAge, cityHH, cityEmp, cityRooms, citySurf, districts, gapData, geoData };
+  const data = {
+    cityPop, cityAge, cityHH, cityEmp, cityRooms, citySurf,
+    districts, gapData, geoData,
+    allPop, allHH, allRooms,
+  };
 
-  // Hero stats
+  /* Hero stats */
   const latest   = cityPop[cityPop.length - 1];
   const latestHH = cityHH[cityHH.length - 1];
   const gap2024  = gapData[gapData.length - 1];
