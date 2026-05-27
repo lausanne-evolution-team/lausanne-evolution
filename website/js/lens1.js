@@ -71,8 +71,10 @@ const Lens1 = (() => {
         distLeg.attr('opacity', 0);
         return;
       }
+      // Normalize: match both "11 - Chailly" (new) and "11-Chailly" (old) formats
+      const norm = s => s.replace(/\s*[-–]\s*/,'-').trim().toLowerCase();
       const distData = allPop
-        .filter(d => d.district === districtName && d.pct_swiss > 0)
+        .filter(d => d.pct_swiss > 0 && norm(d.district) === norm(districtName))
         .sort((a,b) => a.year - b.year);
       if (!distData.length) return;
 
