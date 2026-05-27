@@ -13,7 +13,7 @@
 
 <div id="tooltip"></div>
 
-<!-- ── NAV ───────────────────────────────────────────────── -->
+<!-- ── NAV ──────────────────────────────────────────────────────── -->
 <nav>
   <span class="brand">Lausanne <em>en mutation</em></span>
   <div class="nav-links">
@@ -23,19 +23,17 @@
   </div>
 </nav>
 
-<!-- ── HERO ──────────────────────────────────────────────── -->
+<!-- ── HERO ─────────────────────────────────────────────────────── -->
 <header class="hero">
   <div class="hero-inner">
     <p class="eyebrow">COM-480 · Data Visualization · EPFL 2025</p>
     <h1>Is Lausanne's housing stock evolving to match its <em>changing social fabric?</em></h1>
     <p class="hero-sub">Nearly half of Lausanne's residents are foreign-born, and almost one in two households now consists of a single person. Yet the city's housing stock has barely adapted in the past 15 years — raising the question of whether supply still matches demand.</p>
-    <div class="hero-stats" id="hero-stats">
-      <!-- filled by main.js -->
-    </div>
+    <div class="hero-stats" id="hero-stats"></div>
   </div>
 </header>
 
-<!-- ═══════════════ LENS 1 ═══════════════════════════════ -->
+<!-- ═══════════════ LENS 1 ══════════════════════════════════════ -->
 <section class="lens-section" id="lens1">
   <div class="lens-intro">
     <div>
@@ -54,7 +52,6 @@
       </div>
       <div class="chart-wrap" id="chart-stacked"></div>
     </div>
-
     <div class="chart-card">
       <div class="card-header">
         <h3>Population pyramid</h3>
@@ -79,13 +76,14 @@
         <span class="badge mvp">MVP</span>
       </div>
       <div class="chart-wrap" id="chart-choropleth"></div>
+      <div class="chart-micro-insight">Foreign-born residents are not evenly distributed — some districts exceed 50%, highlighting clear spatial concentration patterns across the city.</div>
     </div>
   </div>
 </section>
 
 <hr class="lens-rule">
 
-<!-- ═══════════════ LENS 2 ═══════════════════════════════ -->
+<!-- ═══════════════ LENS 2 ══════════════════════════════════════ -->
 <section class="lens-section" id="lens2">
   <div class="lens-intro">
     <div>
@@ -104,7 +102,6 @@
       </div>
       <div class="chart-wrap" id="chart-dualline"></div>
     </div>
-
     <div class="chart-card">
       <div class="card-header">
         <h3>Female employment gap</h3>
@@ -115,7 +112,6 @@
     </div>
   </div>
 
-  <!-- Lens 2 → 3 bridge sentence -->
   <div class="lens-bridge">
     <span class="bridge-arrow">↓</span>
     <p>With nearly 1 in 2 households now living alone, does Lausanne's housing stock actually provide enough small apartments to meet this demand?</p>
@@ -124,33 +120,76 @@
 
 <hr class="lens-rule">
 
-<!-- ═══════════════ LENS 3 ═══════════════════════════════ -->
-<section class="lens-section" id="lens3">
-  <div class="lens-intro">
+<!-- ═══════════════ LENS 3 — SCROLLYTELLING ═════════════════════ -->
+<section class="scrolly-section" id="lens3">
+  <div class="lens-intro scrolly-intro">
     <div>
       <span class="lens-label l3">Lens 3</span>
       <h2>What does housing offer?</h2>
     </div>
-    <p class="lens-desc">Lausanne's housing stock grew 12% between 2010 and 2024 — but its distribution across room sizes barely shifted. This lens compares supply to demand: are small apartments multiplying fast enough to serve a city that is overwhelmingly made up of singles and couples?</p>
+    <p class="lens-desc">Lausanne's housing stock grew 12% between 2010 and 2024 — but its distribution across room sizes barely shifted. Scroll through the story below to see how the gap between demand and supply has evolved.</p>
   </div>
 
-  <!-- CORE chart -->
-  <div class="chart-grid one-col">
-    <div class="chart-card core">
+  <!-- SCROLLYTELLING: sticky chart + scrolling steps -->
+  <div class="scrolly-container">
+
+    <!-- Sticky chart -->
+    <div class="scrolly-sticky">
       <div class="card-header">
-        <h3>★ The gap: small-household demand vs small-dwelling supply</h3>
-        <span class="card-sub">1-person HH share (%) vs 1–2 room dwelling share (%) · 2012–2024</span>
+        <h3>★ Small-household demand vs small-dwelling supply</h3>
+        <span class="card-sub">1-person HH share vs 1–2 room dwelling share · 2012–2024</span>
         <span class="badge core-badge">★ Core chart</span>
       </div>
-      <div class="chart-wrap" id="chart-gap"></div>
-      <!-- INSIGHT sentence -->
-      <div class="chart-insight">
-        <span class="insight-icon">💡</span>
-        <p>Small households are growing faster than small apartments — and the gap has widened to <strong>6 percentage points</strong>, indicating a persistent shortage of small dwellings that shows no sign of closing.</p>
+      <div id="scrolly-chart"></div>
+    </div>
+
+    <!-- Scrolling steps -->
+    <div class="scrolly-steps">
+      <div class="scrolly-step" data-step="0">
+        <div class="step-card">
+          <div class="step-number">01 / 05</div>
+          <h4>A city of singles</h4>
+          <p>By 2012, nearly half of all Lausanne households already consist of a single person — a structural shift driven by younger residents, international mobility, and changing lifestyles.</p>
+        </div>
+      </div>
+      <div class="scrolly-step" data-step="1">
+        <div class="step-card">
+          <div class="step-number">02 / 05</div>
+          <h4>Supply barely responds</h4>
+          <p>Between 2012 and 2018, the share of small apartments (1–2 rooms) grows only marginally — from 42% to 43%. The housing stock is adding units, but not the right kind.</p>
+        </div>
+      </div>
+      <div class="scrolly-step" data-step="2">
+        <div class="step-card">
+          <div class="step-number">03 / 05</div>
+          <h4>2020: the gap widens</h4>
+          <p>From 2020, demand accelerates sharply as single-person households surge past 48%. The gap between what people need and what the market offers visibly widens.</p>
+        </div>
+      </div>
+      <div class="scrolly-step" data-step="3">
+        <div class="step-card">
+          <div class="step-number">04 / 05</div>
+          <h4>A 6-point persistent shortage</h4>
+          <p>By 2024, 49% of households are one-person — but only 43% of apartments are small enough to serve them. The 6-point gap has persisted for over a decade with no sign of closing.</p>
+        </div>
+      </div>
+      <div class="scrolly-step" data-step="4">
+        <div class="step-card">
+          <div class="step-number">05 / 05</div>
+          <h4>The structural mismatch</h4>
+          <p>Lausanne's housing stock grew 12% since 2010 but its shape barely changed. It was built for families — not for the city it has become.</p>
+        </div>
       </div>
     </div>
   </div>
 
+  <!-- Insight box -->
+  <div class="chart-insight" style="margin-top:40px">
+    <span class="insight-icon">💡</span>
+    <p>Small households are growing faster than small apartments — and the gap has widened to <strong>6 percentage points</strong>, indicating a persistent shortage of small dwellings that shows no sign of closing.</p>
+  </div>
+
+  <!-- Supporting charts -->
   <div class="chart-grid two-col" style="margin-top:28px">
     <div class="chart-card">
       <div class="card-header">
@@ -160,7 +199,6 @@
       </div>
       <div class="chart-wrap" id="chart-groupedbar"></div>
     </div>
-
     <div class="chart-card">
       <div class="card-header">
         <h3>Dwelling size distribution</h3>
@@ -181,6 +219,7 @@
 <script src="js/lens1.js"></script>
 <script src="js/lens2.js"></script>
 <script src="js/lens3.js"></script>
+<script src="js/scrolly.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -2,9 +2,8 @@
    main.js — Load all data, populate hero, init all lenses
    ============================================================ */
 
-const DATA_PATH = '../data/processed/';
+const DATA_PATH = 'data/';
 
-/* shared tooltip helper */
 const tooltip = {
   el: document.getElementById('tooltip'),
   show(html, event) {
@@ -15,16 +14,14 @@ const tooltip = {
   move(event) {
     const x = event.clientX, y = event.clientY;
     const w = this.el.offsetWidth, h = this.el.offsetHeight;
-    const vw = window.innerWidth,  vh = window.innerHeight;
+    const vw = window.innerWidth, vh = window.innerHeight;
     this.el.style.left = (x + 14 + w > vw ? x - w - 14 : x + 14) + 'px';
     this.el.style.top  = (y + 14 + h > vh ? y - h - 14 : y + 14) + 'px';
   },
   hide() { this.el.classList.remove('visible'); },
 };
+window.TT = tooltip;
 
-window.TT = tooltip;   /* make accessible to lens files */
-
-/* ── Load all CSVs in parallel ───────────────────────────────────── */
 Promise.all([
   d3.csv(DATA_PATH + 'pop_origin.csv',        d3.autoType),
   d3.csv(DATA_PATH + 'pop_age.csv',           d3.autoType),
@@ -32,80 +29,72 @@ Promise.all([
   d3.csv(DATA_PATH + 'employment.csv',        d3.autoType),
   d3.csv(DATA_PATH + 'dwellings_rooms.csv',   d3.autoType),
   d3.csv(DATA_PATH + 'dwellings_surface.csv', d3.autoType),
-  d3.json('data/lausanne_districts.geojson'),
+  d3.json(DATA_PATH + 'lausanne_districts.geojson').catch(() => null),
 ]).then(([popOrigin, popAge, households, employment, dwRooms, dwSurface, geoData]) => {
 
-  const CITY = 'Ville de Lausanne';
+  const CITY    = 'Ville de Lausanne';
   const byCity  = d => d.district === CITY;
   const byYear  = (a, b) => a.year - b.year;
 
-  /* city-level time series */
-  const cityPop    = popOrigin.filter(byCity).sort(byYear);
-  const cityAge    = popAge.filter(byCity).sort(byYear);
-  const cityHH     = households.filter(byCity).sort(byYear);
-  const cityEmp    = employment.filter(byCity).sort(byYear);
-  const cityRooms  = dwRooms.filter(byCity).sort(byYear);
-  const citySurf   = dwSurface.filter(byCity).sort(byYear);
+  const cityPop   = popOrigin.filter(byCity).sort(byYear);
+  const cityAge   = popAge.filter(byCity).sort(byYear);
+  const cityHH    = households.filter(byCity).sort(byYear);
+  const cityEmp   = employment.filter(byCity).sort(byYear);
+  const cityRooms = dwRooms.filter(byCity).sort(byYear);
+  const citySurf  = dwSurface.filter(byCity).sort(byYear);
 
-  /* district-level for choropleth — latest year only */
   const latestPopYear = d3.max(popOrigin, d => d.year);
   const districts = popOrigin
     .filter(d => d.year === latestPopYear && d.district !== CITY)
-    .filter(d => /^\d{1,2}\s*[-–]/.test(d.district))   /* top-level quartiers only */
-    .filter(d => !d.district.startsWith('99'))           /* remove Adresses inconnues */
+    .filter(d => /^\d{1,2}\s*[-–]/.test(d.district))
+    .filter(d => !d.district.startsWith('99'))
     .sort((a, b) => d3.ascending(a.district, b.district));
 
-  /* gap data: join households + rooms by year */
   const roomsByYear = Object.fromEntries(cityRooms.map(d => [d.year, d]));
   const gapData = cityHH
     .filter(d => roomsByYear[d.year])
     .map(d => ({
-      year:        d.year,
-      pct_1person: d.pct_1person,
-      pct_small_dw:roomsByYear[d.year].pct_small_dw,
-      gap:         +(d.pct_1person - roomsByYear[d.year].pct_small_dw).toFixed(4),
+      year:         d.year,
+      pct_1person:  d.pct_1person,
+      pct_small_dw: roomsByYear[d.year].pct_small_dw,
+      gap: +(d.pct_1person - roomsByYear[d.year].pct_small_dw).toFixed(4),
     }));
 
-  /* bundle everything */
-  const data = {
-    cityPop, cityAge, cityHH, cityEmp, cityRooms, citySurf,
-    districts, gapData, geoData,
-  };
+  const data = { cityPop, cityAge, cityHH, cityEmp, cityRooms, citySurf, districts, gapData, geoData };
 
-  /* ── populate hero stats ──────────────────────────────────────── */
-  const latest = cityPop[cityPop.length - 1];
+  // Hero stats
+  const latest   = cityPop[cityPop.length - 1];
   const latestHH = cityHH[cityHH.length - 1];
-  const latestRooms = cityRooms[cityRooms.length - 1];
-  const gap2024 = gapData[gapData.length - 1];
-
+  const gap2024  = gapData[gapData.length - 1];
   const fmt = d3.format('.0%');
+
   const statItems = [
-    { num: fmt(latest.pct_foreign),          raw: Math.round(latest.pct_foreign*100),    suffix: '%',  label: 'of residents are foreign-born — up from 23% in 1979' },
-    { num: fmt(latestHH.pct_1person),        raw: Math.round(latestHH.pct_1person*100),  suffix: '%',  label: 'of households are just 1 person — the city lives alone' },
-    { num: latestHH.hh_mean_size.toFixed(2), raw: latestHH.hh_mean_size,                suffix: '',   label: 'average persons per household — and still falling' },
-    { num: '+' + fmt(gap2024.gap),           raw: Math.round(gap2024.gap*100),           suffix: '%',  label: 'mismatch between demand for small homes and available supply' },
+    { num: fmt(latest.pct_foreign),          raw: Math.round(latest.pct_foreign*100),   suffix: '%', label: 'of residents are foreign-born — up from 23% in 1979' },
+    { num: fmt(latestHH.pct_1person),        raw: Math.round(latestHH.pct_1person*100), suffix: '%', label: 'of households are just 1 person — the city lives alone' },
+    { num: latestHH.hh_mean_size.toFixed(2), raw: latestHH.hh_mean_size,                suffix: '',  label: 'average persons per household — and still falling' },
+    { num: '+' + fmt(gap2024.gap),           raw: Math.round(gap2024.gap*100),           suffix: '%', label: 'mismatch between demand for small homes and available supply' },
   ];
 
-  document.getElementById('hero-stats').innerHTML = statItems
-    .map(s => `<div class="stat">
+  document.getElementById('hero-stats').innerHTML = statItems.map(s =>
+    `<div class="stat">
       <div class="stat-num" data-target="${s.raw}" data-suffix="${s.suffix}">${s.num}</div>
       <div class="stat-label">${s.label}</div>
-    </div>`).join('');
+    </div>`
+  ).join('');
   setTimeout(() => window.startHeroCounters && window.startHeroCounters(), 300);
 
-  /* ── init all lenses ─────────────────────────────────────────── */
   Lens1.init(data);
   Lens2.init(data);
   Lens3.init(data);
+  if (typeof Scrolly !== 'undefined') Scrolly.init(data);
 
 }).catch(err => {
   console.error('Data loading error:', err);
   document.body.innerHTML = `
-    <div style="padding:60px; font-family:sans-serif; color:#dc2626;">
+    <div style="padding:60px;font-family:sans-serif;color:#dc2626;">
       <h2>Could not load data</h2>
-      <p>Make sure you are running a local server from the repo root.<br>
-      Try: <code>python -m http.server 8000</code> then open
+      <p>Run: <code>python -m http.server 8000</code> then open
       <a href="http://localhost:8000/website/">http://localhost:8000/website/</a></p>
-      <pre style="margin-top:16px; font-size:12px;">${err}</pre>
+      <pre style="margin-top:16px;font-size:12px;">${err}</pre>
     </div>`;
 });
