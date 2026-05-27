@@ -1,25 +1,17 @@
 /* ============================================================
    scrolly.js — Scrollytelling for the gap chart
-   Uses Intersection Observer to trigger step transitions.
-   The gap chart is sticky; narrative steps scroll past it.
    ============================================================ */
 
 const Scrolly = (() => {
 
-  /* ── Step definitions ─────────────────────────────────────────────
-     Each step drives a visual state on the gap chart.
-     highlight: year to circle | range: [y1,y2] to shade | annotation text
-  ─────────────────────────────────────────────────────────────────── */
   const STEPS = [
     {
-      id: 'step-0',
       heading: 'A city of singles',
       body: 'By 2012, nearly half of all Lausanne households already consist of a single person — a structural shift driven by younger residents, international mobility, and changing lifestyles.',
       highlight: 2012,
       note: null,
     },
     {
-      id: 'step-1',
       heading: 'Supply barely responds',
       body: 'Between 2012 and 2018, the share of small apartments (1–2 rooms) grows only marginally — from 42% to 43%. The housing stock is adding units, but not the right kind.',
       highlight: null,
@@ -27,23 +19,20 @@ const Scrolly = (() => {
       note: 'Supply nearly flat',
     },
     {
-      id: 'step-2',
       heading: '2020: the gap widens',
       body: 'From 2020, demand accelerates sharply as single-person households surge past 48%. The gap between what people need and what the market offers visibly widens.',
       highlight: 2020,
       note: 'gap starts widening →',
     },
     {
-      id: 'step-3',
       heading: 'A 6-point persistent shortage',
       body: 'By 2024, 49% of households are one-person — but only 43% of apartments are small enough to serve them. The 6-point gap has persisted for over a decade with no sign of closing.',
       highlight: 2024,
       note: '+6pp gap',
     },
     {
-      id: 'step-4',
       heading: 'The structural mismatch',
-      body: 'Lausanne\'s housing stock grew 12% since 2010 but its shape barely changed. It was built for families — not for the city it has become.',
+      body: "Lausanne's housing stock grew 12% since 2010 but its shape barely changed. It was built for families — not for the city it has become.",
       highlight: null,
       range: [2012, 2024],
       note: null,
@@ -54,12 +43,14 @@ const Scrolly = (() => {
   let svg, g, x, y, gapData, W, H, m;
   let currentStep = -1;
 
-  /* ── Draw the sticky gap chart ───────────────────────────────────── */
   function drawStickyGap(data) {
     gapData = data;
     const el = document.getElementById('scrolly-chart');
+    if (!el) return;  
+
     el.innerHTML = '';
     W = el.getBoundingClientRect().width || 520;
+    if (W < 10) W = 520;  
     H = 380;
     m = { t: 40, r: 120, b: 44, l: 52 };
     const w = W - m.l - m.r;
@@ -72,18 +63,15 @@ const Scrolly = (() => {
     x = d3.scaleLinear().domain(d3.extent(data, d => d.year)).range([0, w]);
     y = d3.scaleLinear().domain([d3.min(all) * 0.95, d3.max(all) * 1.03]).range([h, 0]);
 
-    // Grid
     g.append('g').attr('class', 'grid')
      .call(d3.axisLeft(y).tickSize(-w).tickFormat('').ticks(5))
      .call(g => g.select('.domain').remove());
 
-    // Axes
     g.append('g').attr('class', 'axis').attr('transform', `translate(0,${h})`)
      .call(d3.axisBottom(x).ticks(7).tickFormat(d3.format('d')));
     g.append('g').attr('class', 'axis')
      .call(d3.axisLeft(y).ticks(5).tickFormat(d => Math.round(d * 100) + '%'));
 
-    // Gap fill area (always visible, dimmed initially)
     g.append('path').attr('class', 'gap-fill').datum(data)
       .attr('fill', '#b91c1c').attr('opacity', 0.08)
       .attr('d', d3.area()
@@ -92,26 +80,22 @@ const Scrolly = (() => {
         .y1(d => y(d.pct_1person))
         .curve(d3.curveCatmullRom));
 
-    // Highlight range rect (hidden until triggered)
     g.append('rect').attr('class', 'range-highlight')
       .attr('y', 0).attr('height', h)
-      .attr('fill', '#b91c1c').attr('opacity', 0)
-      .attr('rx', 3);
+      .attr('fill', '#b91c1c').attr('opacity', 0).attr('rx', 3);
 
-    // Supply line (dashed)
+    const supplyLine = d3.line().x(d => x(d.year)).y(d => y(d.pct_small_dw)).curve(d3.curveCatmullRom);
+    const demandLine = d3.line().x(d => x(d.year)).y(d => y(d.pct_1person)).curve(d3.curveCatmullRom);
+
     const supplyPath = g.append('path').datum(data)
       .attr('fill', 'none').attr('stroke', '#b91c1c')
       .attr('stroke-width', 2).attr('stroke-dasharray', '6,3')
-      .attr('opacity', 0.6)
-      .attr('d', d3.line().x(d => x(d.year)).y(d => y(d.pct_small_dw)).curve(d3.curveCatmullRom));
+      .attr('opacity', 0.6).attr('d', supplyLine);
 
-    // Demand line (solid)
     const demandPath = g.append('path').datum(data)
       .attr('fill', 'none').attr('stroke', '#b91c1c')
-      .attr('stroke-width', 3)
-      .attr('d', d3.line().x(d => x(d.year)).y(d => y(d.pct_1person)).curve(d3.curveCatmullRom));
+      .attr('stroke-width', 3).attr('d', demandLine);
 
-    // Animate lines in on load
     [supplyPath, demandPath].forEach(p => {
       const len = p.node().getTotalLength();
       p.attr('stroke-dasharray', len + ' ' + len)
@@ -119,27 +103,20 @@ const Scrolly = (() => {
        .transition().duration(1400).ease(d3.easeQuadOut)
        .attr('stroke-dashoffset', 0);
     });
-    // Restore supply dash after animation
-    setTimeout(() => {
-      supplyPath.attr('stroke-dasharray', '6,3');
-    }, 1500);
+    setTimeout(() => supplyPath.attr('stroke-dasharray', '6,3'), 1500);
 
-    // Dots on demand line
     g.append('g').attr('class', 'demand-dots')
      .selectAll('circle').data(data).join('circle')
      .attr('cx', d => x(d.year)).attr('cy', d => y(d.pct_1person))
      .attr('r', 3.5).attr('fill', 'white')
      .attr('stroke', '#b91c1c').attr('stroke-width', 2);
 
-    // Highlight circle (hidden initially)
     g.append('circle').attr('class', 'highlight-circle')
       .attr('r', 0).attr('fill', 'none')
       .attr('stroke', '#c2410c').attr('stroke-width', 2.5);
 
-    // Annotation label group
     g.append('g').attr('class', 'annotation-group');
 
-    // End labels
     const last = data[data.length - 1];
     g.append('text').attr('x', x(last.year) + 8).attr('y', y(last.pct_1person) + 4)
      .attr('font-size', 10).attr('fill', '#b91c1c').attr('font-weight', '600')
@@ -148,7 +125,6 @@ const Scrolly = (() => {
      .attr('font-size', 10).attr('fill', '#b91c1c').attr('opacity', 0.75)
      .text(`1–2 room apts: ${Math.round(last.pct_small_dw * 100)}%`);
 
-    // Legend
     const leg = svg.append('g').attr('transform', `translate(${m.l + 6},${m.t - 26})`);
     [['1-person household share (demand)', false], ['1–2 room dwelling share (supply)', true]]
       .forEach(([lbl, dash], i) => {
@@ -160,7 +136,6 @@ const Scrolly = (() => {
           .attr('fill', '#374151').text(lbl);
       });
 
-    // Tooltip hover
     const bisect = d3.bisector(d => d.year).left;
     const vl = g.append('line').attr('y1', 0).attr('y2', h)
       .attr('stroke', '#d1d5db').attr('stroke-width', 1)
@@ -183,7 +158,6 @@ const Scrolly = (() => {
       .on('mouseleave', () => { vl.attr('opacity', 0); TT.hide(); });
   }
 
-  /* ── Update chart state for a given step ────────────────────────── */
   function updateChart(stepIndex) {
     if (stepIndex === currentStep || !g) return;
     currentStep = stepIndex;
@@ -192,45 +166,36 @@ const Scrolly = (() => {
     const step = STEPS[stepIndex];
     const h = H - m.t - m.b;
 
-    // Gap fill opacity
-    g.select('.gap-fill')
-      .transition().duration(500)
+    g.select('.gap-fill').transition().duration(500)
       .attr('opacity', step.showFull ? 0.18 : 0.08);
 
-    // Highlight range
     if (step.range) {
       const [y1, y2] = step.range;
-      g.select('.range-highlight')
-        .transition().duration(400)
-        .attr('x', x(y1))
-        .attr('width', x(y2) - x(y1))
-        .attr('opacity', 0.06);
+      g.select('.range-highlight').transition().duration(400)
+        .attr('x', x(y1)).attr('width', x(y2) - x(y1)).attr('opacity', 0.06);
     } else {
       g.select('.range-highlight').transition().duration(300).attr('opacity', 0);
     }
 
-    // Highlight circle
     if (step.highlight) {
       const d = gapData.find(d => d.year === step.highlight);
       if (d) {
         g.select('.highlight-circle')
           .attr('cx', x(d.year)).attr('cy', y(d.pct_1person))
-          .transition().duration(400)
-          .attr('r', 10).attr('opacity', 1);
+          .transition().duration(400).attr('r', 10).attr('opacity', 1);
       }
     } else {
       g.select('.highlight-circle').transition().duration(300).attr('r', 0);
     }
 
-    // Annotation label
     const ann = g.select('.annotation-group');
     ann.selectAll('*').remove();
     if (step.note && step.highlight) {
       const d = gapData.find(d => d.year === step.highlight);
       if (d) {
         const ax = x(d.year), ay = y(d.pct_1person) - 20;
-        ann.append('rect').attr('x', ax - 58).attr('y', ay - 18)
-          .attr('width', 116).attr('height', 20).attr('rx', 4)
+        ann.append('rect').attr('x', ax - 60).attr('y', ay - 18)
+          .attr('width', 120).attr('height', 20).attr('rx', 4)
           .attr('fill', '#c2410c').attr('opacity', 0.9);
         ann.append('text').attr('x', ax).attr('y', ay - 3)
           .attr('text-anchor', 'middle').attr('font-size', 10)
@@ -239,9 +204,9 @@ const Scrolly = (() => {
     }
   }
 
-  /* ── Intersection Observer for steps ────────────────────────────── */
   function initObserver() {
     const stepEls = document.querySelectorAll('.scrolly-step');
+    if (!stepEls.length) return;
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -252,16 +217,14 @@ const Scrolly = (() => {
           updateChart(idx);
         }
       });
-    }, {
-      threshold: 0.55,
-      rootMargin: '0px 0px -20% 0px',
-    });
+    }, { threshold: 0.55, rootMargin: '0px 0px -20% 0px' });
 
     stepEls.forEach(el => observer.observe(el));
   }
 
-  /* ── Public init ─────────────────────────────────────────────────── */
   function init({ gapData }) {
+    const el = document.getElementById('scrolly-chart');
+    if (!el) return;  
     drawStickyGap(gapData);
     initObserver();
   }
