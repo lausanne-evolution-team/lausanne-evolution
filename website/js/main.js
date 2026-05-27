@@ -32,7 +32,8 @@ Promise.all([
   d3.csv(DATA_PATH + 'employment.csv',        d3.autoType),
   d3.csv(DATA_PATH + 'dwellings_rooms.csv',   d3.autoType),
   d3.csv(DATA_PATH + 'dwellings_surface.csv', d3.autoType),
-]).then(([popOrigin, popAge, households, employment, dwRooms, dwSurface]) => {
+  d3.json('data/lausanne_districts.geojson'),
+]).then(([popOrigin, popAge, households, employment, dwRooms, dwSurface, geoData]) => {
 
   const CITY = 'Ville de Lausanne';
   const byCity  = d => d.district === CITY;
@@ -68,7 +69,7 @@ Promise.all([
   /* bundle everything */
   const data = {
     cityPop, cityAge, cityHH, cityEmp, cityRooms, citySurf,
-    districts, gapData,
+    districts, gapData, geoData,
   };
 
   /* ── populate hero stats ──────────────────────────────────────── */

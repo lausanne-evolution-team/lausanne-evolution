@@ -8,6 +8,7 @@ const Lens1 = (() => {
      .call(g => g.select('.domain').remove());
   }
 
+  // ── 1A. STACKED AREA ──────────────────────────────────────────────
   function drawStackedArea(cityPop) {
     const el = document.getElementById('chart-stacked');
     const W = getW('chart-stacked'), H = 340;
@@ -49,9 +50,10 @@ const Lens1 = (() => {
       }).on('mouseleave',()=>{vl.attr('opacity',0);TT.hide();});
   }
 
+  // ── 1B. POPULATION PYRAMID ────────────────────────────────────────
   function drawPyramid(popAge, year) {
     const el = document.getElementById('chart-pyramid');
-    const W = getW('chart-pyramid'), H = 220;
+    const W = getW('chart-pyramid'), H = 300;
     el.innerHTML = '';
     const yd = popAge.find(d=>d.year===year && d.district==='Ville de Lausanne');
     if(!yd) return;
@@ -79,34 +81,186 @@ const Lens1 = (() => {
     });
   }
 
-  function drawChoropleth(districts) {
+  // ── 1C. REAL GEOJSON CHOROPLETH MAP ────────────────────────────────
+  function drawChoropleth(districts, geoData) {
     const el = document.getElementById('chart-choropleth');
-    if(!districts.length){el.innerHTML='<div style="padding:20px;color:#9ca3af">No district data</div>';return;}
-    const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([0.20,0.65]);
-    const grid = document.createElement('div'); grid.className='district-grid';
-    districts.forEach(d=>{
-      const pct=d.pct_foreign||0;
-      const cell=document.createElement('div'); cell.className='district-cell';
-      cell.style.background=colorScale(pct);
-      const name=d.district.replace(/^\d+\s*[-–]\s*/,'');
-      cell.innerHTML=`<span class="d-name">${name}</span><span class="d-pct">${Math.round(pct*100)}%</span>`;
-      cell.addEventListener('mouseenter',e=>TT.show(`<strong>${d.district}</strong><br>Foreign: <strong>${Math.round(pct*100)}%</strong><br>Swiss: <strong>${Math.round(d.pct_swiss*100)}%</strong><br>Total: <strong>${d3.format(',')(d.pop_total)}</strong>`,e));
-      cell.addEventListener('mousemove',e=>TT.move(e));
-      cell.addEventListener('mouseleave',()=>TT.hide());
-      grid.appendChild(cell);
+    el.innerHTML = '';
+
+    // If no GeoJSON, fall back to colour grid
+    if (!geoData) {
+      drawChoroplethGrid(districts, el);
+      return;
+    }
+
+    const W = getW('chart-choropleth');
+    const H = 420;
+
+    const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([0.20, 0.65]);
+    const latestYear = d3.max(districts, d => d.year);
+
+    // Build lookup: normalised district name → data
+    const dataByName = {};
+    districts.forEach(d => {
+      const key = d.district.replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+      dataByName[key] = d;
     });
-    const leg=document.createElement('div'); leg.className='choro-legend';
-    leg.innerHTML=`<span>20%</span><div class="choro-legend-bar"></div><span>65%+</span><span style="margin-left:8px;color:#9ca3af">foreign-born share by district (${d3.max(districts,d=>d.year)})</span>`;
-    el.innerHTML=''; el.appendChild(grid); el.appendChild(leg);
+
+    // Normalise GeoJSON property names
+    const getName = f => {
+      const p = f.properties;
+      return (p.NOMQUARTIE || p.name || p.NAME || p.nom || p.NOM || p.quartier || p.QUARTIER || '').trim();
+    };
+
+    const svg = d3.select(el).append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .style('width', '100%');
+
+    const g = svg.append('g');
+
+    // Fit projected Swiss coordinates EPSG:2056 directly
+    const projection = d3.geoIdentity()
+      .reflectY(true)
+      .fitSize([W, H - 30], geoData);
+    const path = d3.geoPath().projection(projection);
+
+    // Draw districts
+    g.selectAll('path.district')
+      .data(geoData.features)
+      .join('path')
+      .attr('class', 'district')
+      .attr('d', path)
+      .attr('fill', f => {
+        const rawName = getName(f);
+        const key = rawName.toLowerCase();
+        // Try direct match first, then partial match
+        let match = dataByName[key];
+        if (!match) {
+          match = districts.find(d => {
+            const dname = d.district.replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return key.includes(dname) || dname.includes(key);
+          });
+        }
+        return match ? colorScale(match.pct_foreign || 0) : '#e2e8f0';
+      })
+      .attr('stroke', 'white')
+      .attr('stroke-width', 0.8)
+      .attr('opacity', 0)
+      .on('mouseenter', function(event, f) {
+        d3.select(this).attr('stroke-width', 2).attr('opacity', 1);
+        const rawName = getName(f);
+        const key = rawName.toLowerCase();
+        let match = dataByName[key];
+        if (!match) {
+          match = districts.find(d => {
+            const dname = d.district.replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return key.includes(dname) || dname.includes(key);
+          });
+        }
+        if (match) {
+          TT.show(
+            `<strong>${match.district}</strong><br>
+             Foreign: <strong>${Math.round(match.pct_foreign*100)}%</strong><br>
+             Swiss: <strong>${Math.round(match.pct_swiss*100)}%</strong><br>
+             Total: <strong>${d3.format(',')(match.pop_total)}</strong>`,
+            event
+          );
+        } else {
+          TT.show(`<strong>${rawName}</strong>`, event);
+        }
+      })
+      .on('mousemove', e => TT.move(e))
+      .on('mouseleave', function() {
+        d3.select(this).attr('stroke-width', 0.8).attr('opacity', d => {
+          const rawName = getName(d);
+          const key = rawName.toLowerCase();
+          let match = dataByName[key];
+          return match ? 0.88 : 0.4;
+        });
+        TT.hide();
+      })
+      .transition().duration(600).delay((_, i) => i * 30)
+      .attr('opacity', f => {
+        const rawName = getName(f);
+        const key = rawName.toLowerCase();
+        const match = dataByName[key] ||
+          districts.find(d => {
+            const dname = d.district.replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return key.includes(dname) || dname.includes(key);
+          });
+        return match ? 0.88 : 0.4;
+      });
+
+    // District labels
+    g.selectAll('text.district-label')
+      .data(geoData.features)
+      .join('text')
+      .attr('class', 'district-label')
+      .attr('transform', f => `translate(${path.centroid(f)})`)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 8)
+      .attr('fill', f => {
+        const rawName = getName(f);
+        const key = rawName.toLowerCase();
+        const match = dataByName[key] ||
+          districts.find(d => {
+            const dname = d.district.replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return key.includes(dname) || dname.includes(key);
+          });
+        return match && match.pct_foreign > 0.45 ? 'white' : '#1e3a8a';
+      })
+      .attr('pointer-events', 'none')
+      .text(f => {
+        const rawName = getName(f);
+        // Shorten long names
+        return rawName.split('/')[0].split('–')[0].trim().substring(0, 12);
+      });
+
+    // Colour scale legend
+    const legW = Math.min(300, W - 40);
+    const legG = svg.append('g').attr('transform', `translate(${(W - legW) / 2}, ${H - 22})`);
+    const defs = svg.append('defs');
+    const grad = defs.append('linearGradient').attr('id', 'choro-grad');
+    grad.append('stop').attr('offset', '0%').attr('stop-color', colorScale(0.20));
+    grad.append('stop').attr('offset', '100%').attr('stop-color', colorScale(0.65));
+    legG.append('rect').attr('width', legW).attr('height', 8).attr('rx', 4).attr('fill', 'url(#choro-grad)');
+    legG.append('text').attr('x', 0).attr('y', 18).attr('font-size', 9).attr('fill', '#9ca3af').text('20% foreign');
+    legG.append('text').attr('x', legW).attr('y', 18).attr('text-anchor', 'end').attr('font-size', 9).attr('fill', '#9ca3af').text(`65%+ · data: ${latestYear}`);
   }
 
-  function init({cityPop,cityAge,districts}){
-    drawStackedArea(cityPop);
-    drawPyramid(cityAge,2024);
-    const slider=document.getElementById('pyramid-slider');
-    const label=document.getElementById('pyramid-year-label');
-    slider.addEventListener('input',()=>{label.textContent=slider.value;drawPyramid(cityAge,+slider.value);});
-    drawChoropleth(districts);
+  // Fallback: colour grid (when no GeoJSON available)
+  function drawChoroplethGrid(districts, el) {
+    const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([0.20, 0.65]);
+    const grid = document.createElement('div'); grid.className = 'district-grid';
+    districts.forEach(d => {
+      const pct = d.pct_foreign || 0;
+      const cell = document.createElement('div'); cell.className = 'district-cell';
+      cell.style.background = colorScale(pct);
+      const name = d.district.replace(/^\d+\s*[-–]\s*/, '');
+      cell.innerHTML = `<span class="d-name">${name}</span><span class="d-pct">${Math.round(pct*100)}%</span>`;
+      cell.addEventListener('mouseenter', e => TT.show(`<strong>${d.district}</strong><br>Foreign: <strong>${Math.round(pct*100)}%</strong><br>Swiss: <strong>${Math.round(d.pct_swiss*100)}%</strong><br>Total: <strong>${d3.format(',')(d.pop_total)}</strong>`, e));
+      cell.addEventListener('mousemove', e => TT.move(e));
+      cell.addEventListener('mouseleave', () => TT.hide());
+      grid.appendChild(cell);
+    });
+    const leg = document.createElement('div'); leg.className = 'choro-legend';
+    leg.innerHTML = `<span>20%</span><div class="choro-legend-bar"></div><span>65%+</span><span style="margin-left:8px;color:#9ca3af">foreign-born share by district (${d3.max(districts,d=>d.year)})</span>`;
+    el.appendChild(grid); el.appendChild(leg);
   }
-  return {init};
+
+  // ── PUBLIC INIT ───────────────────────────────────────────────────
+  function init({ cityPop, cityAge, districts, geoData }) {
+    drawStackedArea(cityPop);
+    drawPyramid(cityAge, 2024);
+
+    const slider = document.getElementById('pyramid-slider');
+    const label  = document.getElementById('pyramid-year-label');
+    slider.addEventListener('input', () => {
+      label.textContent = slider.value;
+      drawPyramid(cityAge, +slider.value);
+    });
+
+    drawChoropleth(districts, geoData);
+  }
+
+  return { init };
 })();
