@@ -137,6 +137,7 @@ const Lens1 = (() => {
       .attr('y',10)
       .attr('font-size',11)
       .attr('fill','#374151')
+      .attr('class','dist-leg-label')
       .text('Selected district');
 
     const bisect = d3.bisector(d=>d.year).left;
@@ -209,6 +210,8 @@ const Lens1 = (() => {
 
       distLine.datum(distData).attr('d', lineFn).attr('opacity', 1);
       distLeg.attr('opacity', 1);
+      distLeg.select('.dist-leg-label')
+        .text(`${districtName.replace(/^\d+\s*[-–]\s*/, '')} — foreign %`);
     });
   }
 
@@ -323,7 +326,6 @@ const Lens1 = (() => {
       });
     };
 
-    // Controls above the map
     const controls = d3.select(el)
       .append('div')
       .attr('class', 'map-controls')
@@ -366,9 +368,6 @@ const Lens1 = (() => {
 
     const g = svg.append('g').attr('class', 'map-layer');
 
-    // IMPORTANT:
-    // We fit the FULL GeoJSON, not only the urban districts.
-    // This keeps "Zones foraines" visible.
     const projection = d3.geoIdentity()
       .reflectY(true)
       .fitExtent([[35, 20], [W - 35, H - 90]], geoData);
@@ -408,7 +407,6 @@ const Lens1 = (() => {
       svg.transition().duration(250).call(zoom.transform, d3.zoomIdentity);
     });
 
-    // Reset district button
     const existingReset = d3.select(el.parentNode).select('.district-reset');
     if (!existingReset.empty()) existingReset.remove();
 
@@ -447,9 +445,7 @@ const Lens1 = (() => {
       .on('mouseenter', function(event, f) {
         const rawName = getName(f);
         const match = findMatch(rawName);
-
         d3.select(this).attr('stroke-width', 2.2);
-
         if (match) {
           TT.show(
             `<strong>${match.district}</strong><br>
@@ -471,10 +467,8 @@ const Lens1 = (() => {
       .on('click', function(event, f) {
         const match = findMatch(getName(f));
         if (!match) return;
-
         const filter = getDistrictFilter();
         const isSelected = filter.active === match.district;
-
         if (isSelected) {
           filter.clear();
         } else {
@@ -487,8 +481,6 @@ const Lens1 = (() => {
       .delay((_,i) => i*25)
       .attr('opacity', 0.88);
 
-    // District labels
-    // On mobile, labels are smaller and keep a constant size when zooming.
     labelSelection = g.selectAll('text.district-label')
       .data(geoData.features)
       .join('text')
@@ -519,7 +511,6 @@ const Lens1 = (() => {
         return n.split('/')[0].trim().substring(0, isMobile ? 9 : 14);
       });
 
-    // Colour legend
     const legW = Math.min(360, W - 80);
     const legG = svg.append('g')
       .attr('transform',`translate(${(W-legW)/2}, ${H-45})`);
@@ -531,21 +522,16 @@ const Lens1 = (() => {
       .attr('fill','url(#choro-grad)');
 
     legG.append('text')
-      .attr('x',0)
-      .attr('y',24)
-      .attr('font-size',10)
-      .attr('fill','#9ca3af')
+      .attr('x',0).attr('y',24)
+      .attr('font-size',10).attr('fill','#9ca3af')
       .text('20% foreign');
 
     legG.append('text')
-      .attr('x',legW)
-      .attr('y',24)
+      .attr('x',legW).attr('y',24)
       .attr('text-anchor','end')
-      .attr('font-size',10)
-      .attr('fill','#9ca3af')
+      .attr('font-size',10).attr('fill','#9ca3af')
       .text(`65%+ · data: ${latestYear}`);
 
-    // React to filter changes — highlight selected district
     const filter = getDistrictFilter();
 
     filter.onChange(districtName => {
@@ -573,35 +559,24 @@ const Lens1 = (() => {
 
   function drawChoroplethGrid(districts, el) {
     const colorScale = d3.scaleSequential(d3.interpolateBlues).domain([0.20,0.65]);
-
     const grid = document.createElement('div');
     grid.className='district-grid';
-
     districts.forEach(d=>{
       const pct = d.pct_foreign || 0;
       const cell = document.createElement('div');
       cell.className='district-cell';
       cell.style.background=colorScale(pct);
-
       const name = d.district.replace(/^\d+\s*[-–]\s*/,'');
-
-      cell.innerHTML = `
-        <span class="d-name">${name}</span>
-        <span class="d-pct">${Math.round(pct*100)}%</span>
-      `;
-
+      cell.innerHTML = `<span class="d-name">${name}</span><span class="d-pct">${Math.round(pct*100)}%</span>`;
       cell.addEventListener('click',()=> getDistrictFilter().set(d.district));
       cell.addEventListener('mouseenter',e=>TT.show(`<strong>${d.district}</strong><br>Foreign: <strong>${Math.round(pct*100)}%</strong>`,e));
       cell.addEventListener('mousemove',e=>TT.move(e));
       cell.addEventListener('mouseleave',()=>TT.hide());
-
       grid.appendChild(cell);
     });
-
     const leg = document.createElement('div');
     leg.className='choro-legend';
     leg.innerHTML=`<span>20%</span><div class="choro-legend-bar"></div><span>65%+</span>`;
-
     el.appendChild(grid);
     el.appendChild(leg);
   }
@@ -609,17 +584,14 @@ const Lens1 = (() => {
   function init({ cityPop, cityAge, districts, geoData, allPop }) {
     drawStackedArea(cityPop, allPop);
     drawPyramid(cityAge, 2024);
-
     const slider = document.getElementById('pyramid-slider');
     const label  = document.getElementById('pyramid-year-label');
-
     if (slider && label) {
       slider.addEventListener('input', () => {
         label.textContent = slider.value;
         drawPyramid(cityAge, +slider.value);
       });
     }
-
     drawChoropleth(districts, geoData);
   }
 
