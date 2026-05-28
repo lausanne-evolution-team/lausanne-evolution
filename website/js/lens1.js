@@ -172,7 +172,7 @@ const Lens1 = (() => {
         const match = findMatch(getName(f));
         return match ? colorScale(match.pct_foreign || 0) : '#e2e8f0';
       })
-      .attr('stroke','white').attr('stroke-width',0.8)
+      .attr('stroke','white').attr('stroke-width',1)
       .attr('opacity',0)
       .style('cursor','pointer')
       .on('mouseenter', function(event, f) {
@@ -210,7 +210,7 @@ const Lens1 = (() => {
       .join('text')
       .attr('class','district-label')
       .attr('transform', f => `translate(${path.centroid(f)})`)
-      .attr('text-anchor','middle').attr('font-size',8)
+      .attr('text-anchor','middle').attr('font-size',10)
       .attr('fill', f => {
         const match = findMatch(getName(f));
         return match && match.pct_foreign > 0.45 ? 'white' : '#1e3a8a';
