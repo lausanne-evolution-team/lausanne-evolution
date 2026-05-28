@@ -16,13 +16,13 @@ const Lens3 = (() => {
     if(!rRow||!hRow) return;
     const rT=rRow.dw_total,hT=hRow.hh_total;
     const cats=[
-      {label:'1',  supply:rRow.dw_1room/rT,  demand:hRow.hh_1person/hT},
-      {label:'2',  supply:rRow.dw_2rooms/rT,  demand:0},
-      {label:'3',  supply:rRow.dw_3rooms/rT,  demand:hRow.hh_2persons/hT},
-      {label:'4',  supply:rRow.dw_4rooms/rT,  demand:(hRow.hh_3persons+hRow.hh_4persons)/hT},
-      {label:'5',  supply:rRow.dw_5rooms/rT,  demand:hRow.hh_5persons/hT},
-      {label:'6+', supply:rRow.dw_6plus/rT,   demand:hRow.hh_6plus/hT},
-    ];
+  {label:'1',  supply:rRow.dw_1room/rT,  demand:hRow.hh_1person/hT},
+  {label:'2',  supply:rRow.dw_2rooms/rT,  demand:hRow.hh_2persons/hT},
+  {label:'3',  supply:rRow.dw_3rooms/rT,  demand:(hRow.hh_3persons+hRow.hh_4persons)/hT},
+  {label:'4',  supply:rRow.dw_4rooms/rT,  demand:hRow.hh_5persons/hT},
+  {label:'5',  supply:rRow.dw_5rooms/rT,  demand:hRow.hh_6plus/hT},
+  {label:'6+', supply:rRow.dw_6plus/rT,   demand:0},
+];
     const svg=d3.select(el).append('svg').attr('viewBox',`0 0 ${W} ${H}`);
     const g=svg.append('g').attr('transform',`translate(${m.l},${m.t})`);
     const x0=d3.scaleBand().domain(cats.map(d=>d.label)).range([0,w]).padding(.25);
