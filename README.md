@@ -11,36 +11,8 @@
 ## Milestone 1 (20th March, 5pm)
 
 **10% of the final grade**
+📄 [Milestone 1 PDF](milestone-1-p.pdf) &nbsp;·&nbsp;
 
-This is a preliminary milestone to let you set up goals for your final project and assess the feasibility of your ideas.
-Please, fill the following sections about your project.
-
-*(max. 2000 characters per section)*
-
-### Dataset
-
-> Find a dataset (or multiple) that you will explore. Assess the quality of the data it contains and how much preprocessing / data-cleaning it will require before tackling visualization. We recommend using a standard dataset as this course is not about scraping nor data processing.
->
-> Hint: some good pointers for finding quality publicly available datasets ([Google dataset search](https://datasetsearch.research.google.com/), [Kaggle](https://www.kaggle.com/datasets), [OpenSwissData](https://opendata.swiss/en/), [SNAP](https://snap.stanford.edu/data/) and [FiveThirtyEight](https://data.fivethirtyeight.com/)).
-
-### Problematic
-
-> Frame the general topic of your visualization and the main axis that you want to develop.
-> - What am I trying to show with my visualization?
-> - Think of an overview for the project, your motivation, and the target audience.
-
-### Exploratory Data Analysis
-
-> Pre-processing of the data set you chose
-> - Show some basic statistics and get insights about the data
-
-### Related work
-
-
-> - What others have already done with the data?
-> - Why is your approach original?
-> - What source of inspiration do you take? Visualizations that you found on other websites or magazines (might be unrelated to your data).
-> - In case you are using a dataset that you have already explored in another context (ML or ADA course, semester project...), you are required to share the report of that work to outline the differences with the submission for this class.
 
 ## Milestone 2 (17th April, 5pm)
 **10% of the final grade**
@@ -53,8 +25,45 @@ Please, fill the following sections about your project.
 
 **80% of the final grade**
 
-📄 [Process Book](processbook.pdf) &nbsp;·&nbsp; 🌐 [Live Website](https://lausanne-evolution-team.github.io/lausanne-evolution/website/)
 
+🌐 **Website:** https://lausanne-evolution-team.github.io/lausanne-evolution/website/
+
+🎬 **Screencast**
+[See our screencast here](https://youtu.be/9COsj5hscqk)
+
+📖 **Process book**
+[Read our process book here](https://github.com/lausanne-evolution-team/lausanne-evolution/blob/master/processbook.pdf)
+
+## 🚀 How to Run Locally
+
+- Clone the repo: `git clone https://github.com/lausanne-evolution-team/lausanne-evolution.git`
+- Start a local server from the repo root: `python -m http.server 8000`
+- Open in your browser: [http://localhost:8000/website/](http://localhost:8000/website/)
+
+> A local server is required — browsers block CSV loading from `file://` URLs.
+
+To regenerate the CSVs from raw Excel files:
+```bash
+pip install pandas openpyxl
+python preprocessing/clean.py
+```
+
+## 📁 Repository Structure
+```text
+lausanne-evolution/
+├── data/
+│   ├── raw/                  original Excel files (Statistique Lausanne)
+│   └── processed/            clean CSVs + GeoJSON
+├── preprocessing/
+│   └── clean.py              data preprocessing script
+├── website/
+│   ├── index.html
+│   ├── css/style.css
+│   ├── js/                   main.js, lens1-3.js, scrolly.js, animations.js
+│   └── data/                 CSV + GeoJSON copies for GitHub Pages
+├── processbook.pdf
+└── README.md
+```
 
 ## Late policy
 
