@@ -53,6 +53,8 @@ Please, fill the following sections about your project.
 
 **80% of the final grade**
 
+📄 [Process Book](processbook.pdf) &nbsp;·&nbsp; 🌐 [Live Website](https://lausanne-evolution-team.github.io/lausanne-evolution/website/)
+
 
 ## Late policy
 
