@@ -228,6 +228,11 @@ const Lens1 = (() => {
     const legW = Math.min(300, W-40);
     const legG = svg.append('g').attr('transform',`translate(${(W-legW)/2}, ${H-22})`);
     const defs = svg.append('defs');
+    const clipId = 'map-clip';
+    defs.append('clipPath').attr('id', clipId)
+      .append('rect').attr('width', W).attr('height', H);
+    g.attr('clip-path', `url(#${clipId})`);
+
     const grad = defs.append('linearGradient').attr('id','choro-grad');
     grad.append('stop').attr('offset','0%').attr('stop-color',colorScale(0.20));
     grad.append('stop').attr('offset','100%').attr('stop-color',colorScale(0.65));
